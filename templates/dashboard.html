@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+    <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block header_menu %}
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('job_table') }}">Table</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('preprocess') }}">Preprocess</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('clustering') }}">Clustering</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('topic_modeling') }}">Topic modeling</a>
+          </li>
+        </ul>
+    </div>
+{% endblock %}
+{% block main_panel %}
+    <div class="content-wrapper">
+        <!-- to pick the data -->
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <form class='form-inline' action="{{ url_for('dashboard') }}" method="POST">
+                                <div class="col-md-4" style="width: 400px;">
+                                    <div class="form-group">
+                                        <label for="startDate">Start Date:</label>
+                                        <input id="startDate" class="form-control" width="350" name="startDate" value="{{ min_dateP }}"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="width: 400px;">
+                                    <div class="form-group">
+                                        <label for="endDate">End Date:</label>
+                                        <input id="endDate" class="form-control" width="350" name="endDate" value="{{ max_dateP }}"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="width: 400px;">
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary btn-md">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <p><br></p>
+                        <!-- show some statistics -->
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6 mt-md-0 mt-4">
+                                <div class="wrapper">
+                                    <h5 class="mb-0 font-weight-medium text-primary">{{ plot_db['stat']['db'][0] }}</h5>
+                                    <h3 class="mb-0 font-weight-semibold">{{ plot_db['stat']['db'][1] }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="wrapper">
+                                    <h5 class="mb-0 font-weight-medium text-primary">Total ads</h5>
+                                    <h3 class="mb-0 font-weight-semibold">{{ plot_db['stat']['total ads'] }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mt-md-0 mt-4">
+                                <div class="wrapper">
+                                    <h5 class="mb-0 font-weight-medium text-primary">Num available ads</h5>
+                                    <h3 class="mb-0 font-weight-semibold">{{ plot_db['stat']['available ads'] }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mt-md-0 mt-4">
+                                <div class="wrapper">
+                                    <h5 class="mb-0 font-weight-medium text-primary">Date range</h5>
+                                    <h3 class="mb-0 font-weight-semibold">{{ plot_db['stat']['date range'] }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- job count by date -->
+            <div class="col-lg-6 grid-margin stretch-card">  <!-- date bar-->
+                <div class="card">
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="mx-auto" style="width:200px;">
+                            <h4 class="card-title mb-0">Jobs by published month</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jobCount" style="width:700px;height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="mx-auto" style="width:200px;">
+                            <h4 class="card-title mb-0">Jobs by location</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="regionCount" style="width:700px;height:400px;"></div>
+                        <small id="filterhelp" class="form-text text-muted">Note: both UK and GB stands for the United Kingdom</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Industry and employment type -->
+        <div class="row">
+            <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="mx-auto" style="width:200px;">
+                            <h4 class="card-title mb-0">Employment type & Industry</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="ind_type" style="width:1400px;height:700px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Salary analysis -->
+        <div class="row">
+            <div class="col-lg-12 grid-margin stretch-card">  <!-- date bar-->
+                <div class="card">
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="mx-auto" style="width:200px;">
+                            <h4 class="card-title mb-0">Salary</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h4 class="card-title">Top 15 most frequent key words</h4>
+                                <div id="salaryTermCount" style="width:400px;height:350px;"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="card-title">Word cloud key words</h4>
+                                <img src="{{ url_for('static', filename='/assets/images/plot_capture/wordcloud_salary.png') }}" alt="wordcloud_salary" width="400" height="350">
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="card-title">Statistics of salary (yearly)</h4>
+                                <!--<p class="card-description"> Add class comment </p>-->
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th> Stats. </th>
+                                            <th> Salary Max. </th>
+                                            <th> Salary Min. </th>
+                                            <th> Value </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in range(plot_db['stat']['salary_index']|length) %}
+                                            <tr>
+                                                <th scope="row">{{ plot_db['stat']['salary_index'][i] }}</th>
+                                                <td> {{ plot_db['stat']['salary']['salaryMax'][i] }} </td>
+                                                <td> {{ plot_db['stat']['salary']['salaryMin'][i] }} </td>
+                                                <td> {{ plot_db['stat']['salary']['value'][i] }} </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const min_date = new Date("{{ min_dateP }}");
+        const max_date = new Date("{{ max_dateP }}");
+        $('#startDate').datepicker({
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            minDate: min_date,
+            maxDate: max_date
+        });
+        $('#endDate').datepicker({
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            minDate: min_date,
+            maxDate: max_date
+        });
+    </script>
+    <script type="text/javascript">
+        var chartDom = document.getElementById('salaryTermCount');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                top: '3%',
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                boundaryGap: [0, 0.01]
+            },
+            yAxis: {
+                type: 'category',
+                data: {{ plot_db['salary']['words']|tojson }}
+            },
+            series: [
+                {
+                    type: 'bar',
+                    data: {{ plot_db['salary']['count'] }}
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+        var myChart1 = echarts.init(document.getElementById('jobCount'));
+        var option1 = {
+            tooltip: {},
+            xAxis: {
+                data: {{ plot_db['bar_freq_date']['date']|tojson }},
+                axisLabel: {
+                    interval: 0,
+                    rotate:30
+                }
+            },
+            yAxis: {},
+            series: [{
+                name: 'count',
+                type: 'bar',
+                data: {{ plot_db['bar_freq_date']['count'] }}
+            }]
+        };
+
+        // use configuration item and data specified to show chart
+        myChart1.setOption(option1);
+    </script>
+    <script type="text/javascript">
+        var chartDom = document.getElementById('ind_type');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            legend: [{
+                name: 'emp',
+                orient: 'vertical',
+                left: 10,
+                top: 20,
+                bottom: 20,
+                data: {{ plot_db['pie_ind_emptype']['emp_type']|tojson }}
+            },{
+                orient: 'vertical',
+                right: 10,
+                top: 20,
+                bottom: 20,
+                data: {{ plot_db['pie_ind_emptype']['leg_pie']|tojson }}
+            }],
+            series: [
+                {
+                    name: 'Employment type',
+                    type: 'pie',
+                    selectedMode: 'single',
+                    radius: [0, '30%'],
+                    label: {
+                        position: 'inner',
+                        fontSize: 14,
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: {{ plot_db['pie_ind_emptype']['emp_type']|tojson }}
+                },
+                {
+                    name: 'Industry',
+                    type: 'pie',
+                    radius: ['45%', '60%'],
+                    labelLine: {
+                        length: 30,
+                    },
+                    label: {
+                        formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
+                        backgroundColor: '#F6F8FC',
+                        borderColor: '#8C8D8E',
+                        borderWidth: 1,
+                        borderRadius: 4,
+
+                        rich: {
+                            a: {
+                                color: '#6E7079',
+                                lineHeight: 22,
+                                align: 'center'
+                            },
+                            hr: {
+                                borderColor: '#8C8D8E',
+                                width: '100%',
+                                borderWidth: 1,
+                                height: 0
+                            },
+                            b: {
+                                color: '#4C5058',
+                                fontSize: 14,
+                                fontWeight: 'bold',
+                                lineHeight: 33
+                            },
+                            per: {
+                                color: '#fff',
+                                backgroundColor: '#4C5058',
+                                padding: [3, 4],
+                                borderRadius: 4
+                            }
+                        }
+                    },
+                    data: {{ plot_db['pie_ind_emptype']['ind']|tojson }}
+                }
+            ]
+        };
+    option && myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+        var dom = document.getElementById("regionCount");
+        var myChart = echarts.init(dom);
+        var app = {};
+        var option;
+
+        var builderJson = {
+          "all": {{ plot_db['region']['all_count']}},
+          "charts": {{ plot_db['region']['count_region']|tojson }}
+        };
+
+        var downloadJson = {{ plot_db['region']['count_country']|tojson }};
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+
+
+        option = {
+            tooltip: {},
+            title: [{
+                text: 'Percentage of job ads in regions of UK',
+                subtext: 'Total ' + builderJson.all,
+                left: '25%',
+                textAlign: 'center'
+            }, {
+                text: 'Jobs by country',
+                subtext: 'Total' + Object.keys(downloadJson).reduce(function (all, key) {
+                    return all + downloadJson[key];
+                }, 0),
+                left: '75%',
+                textAlign: 'center'
+            }],
+            grid: [{
+                top: 50,
+                width: '50%',
+                bottom: '10%',
+                left: 10,
+                containLabel: true
+            }],
+            xAxis: [{
+                type: 'value',
+                max: 100,
+                axisLabel : {
+                formatter: '{value} %'
+                }
+            }],
+            yAxis: [{
+                type: 'category',
+                data: Object.keys(builderJson.charts),
+                axisLabel: {
+                    interval: 0,
+                    rotate: 30
+                },
+                splitLine: {
+                    show: false
+                }
+            }],
+            series: [{
+                type: 'bar',
+                stack: 'chart',
+                z: 3,
+                label: {
+                    position: 'right',
+                    show: true
+                },
+                data: Object.keys(builderJson.charts).map(function (key) {
+                    return builderJson.charts[key];
+                })
+            }, {
+                type: 'bar',
+                stack: 'chart',
+                silent: true,
+                itemStyle: {
+                    color: '#eee'
+                },
+                data: Object.keys(builderJson.charts).map(function (key) {
+                    return builderJson.all - builderJson.charts[key];
+                })
+            }, {
+                type: 'pie',
+                radius: [0, '30%'],
+                center: ['75%', '50%'],
+                data: Object.keys(downloadJson).map(function (key) {
+                    return {
+                        name: key.replace('.js', ''),
+                        value: downloadJson[key]
+                    };
+                })
+            }]
+        };
+
+        if (option && typeof option === 'object') {
+            myChart.setOption(option);
+        }
+    </script>
+  <!-- content-wrapper ends -->
+{% endblock %}

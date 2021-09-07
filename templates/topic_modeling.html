@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/bmabey/pyLDAvis@3.3.1/pyLDAvis/js/ldavis.v1.0.0.css">
+{% endblock %}
+{% block header_menu %}
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('job_table') }}">Table</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('preprocess') }}">Preprocess</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('clustering') }}">Clustering</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('topic_modeling') }}">Topic modeling<span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+    </div>
+{% endblock %}
+{% block main_panel %}
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card" style="float:right">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Adjustment</h4>
+                    <form action="{{ url_for('topic_modeling') }}" method="POST">
+                      <!--<p class="card-description"> something here  </p>-->
+                      <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group row">
+                              <label>Num. topics
+                                <input type="number" class="form-control" name="num_topic" value='{{ topic_dict['param']['num_topic'] }}' min="1" max="30" step="1">
+                              </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-group row">
+                              <label>Min. absolute Freq.
+                                <input type="number" class="form-control" name="no_below" placeholder="{{ data_initial['data_filtered']['param']['no_below'] }}" readonly>
+                              </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                              <div class="form-group row">
+                              <label>Max. relative Freq.
+                                <input type="number" class="form-control" name="no_above" placeholder="{{ data_initial['data_filtered']['param']['no_above'] }}" readonly>
+                                <small id="filterhelp" class="form-text text-muted">Change filter parameters in preprocess page</small>
+                              </label>
+                            </div>
+                        </div>
+                          <div class="col-md-12 text-right">
+                            <button type="submit" class="btn btn-primary btn-md">Submit</button>
+                          </div>
+                      </div>
+                    </form>
+                    <h4 class="card-title">Topic modeling with LDA</h4>
+                    <!--<p class="card-description"> Add class comment </p>-->
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th> Topic ID </th>
+                          <th> Topic terms </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for row in topic_dict['topic_list'] %}
+                            <tr>
+                              <td> {{ row['topic_id'] }} </td>
+                              <td> {{ row['topicTerm'] }} </td>
+                            </tr>
+                          {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card " style="float:right">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">LDA visualization</h4>
+                       <div id="lda_vis"></div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='assets/js/lda.js')}}"></script>
+{% endblock %}

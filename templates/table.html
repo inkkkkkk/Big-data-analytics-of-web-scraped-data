@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block header_menu %}
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('job_table') }}">Table<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('preprocess') }}">Preprocess</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('clustering') }}">Clustering</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('topic_modeling') }}">Topic modeling</a>
+          </li>
+        </ul>
+    </div>
+{% endblock %}
+{% block main_panel %}
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <h3 class="card-header">Position/topic: {{ disp_col_name }}</h3>
+                  <div class="card-body">
+                    <h4 class="card-title">Available advertisement (Sorted by published date)</h4>
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th> Title </th>
+                          <th> Posted date </th>
+                          <th> Company </th>
+                          <th> Industry </th>
+                          <th> Location </th>
+                          <th> Salary </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {% for i in tjob %}
+                        <tr>
+                          <td>
+                              <a href="{{ i['url'] }}" target="view_window"> {{ i['title'][0:30] }} </a>
+                          </td>
+                          <td> {{ i['dateP'] }} </td>
+                          <td> {{ i['company'][0:20] }} </td>
+                          <td> {{ i['industry'] }} </td>
+                          <td> {{ i['region'] }} </td>
+                          <td> {{ i['disp_salary'] }} </td>
+                        </tr>
+                      {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+        </div>
+    </div>
+    <!-- content-wrapper ends -->
+{% endblock %}

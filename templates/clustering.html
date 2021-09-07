@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block header_menu %}
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('job_table') }}">Table</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('preprocess') }}">Preprocess</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('clustering') }}">Clustering<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('topic_modeling') }}">Topic modeling</a>
+          </li>
+        </ul>
+    </div>
+{% endblock %}
+{% block main_panel %}
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-7 grid-margin stretch-card" style="float:left">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Hierarchical clustering</h4>
+                    <img src="{{ url_for('static', filename='assets/images/plot_capture/hierarchical_clusters.png') }}" alt="hierarchical_clusters" width="800" height="1200">
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-5 grid-margin stretch-card" style="float:right">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Adjustment</h4>
+                    <form action="{{ url_for('clustering') }}" method="POST">
+                      <!--<p class="card-description"> something here  </p>-->
+                      <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group row">
+                              <label>Num. clusters
+                                <input type="number" class="form-control" name="num_cluster" value='{{ df_cluster['num_cluster'] }}' min="1" max="30" step="1">
+                              </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-group row">
+                              <label>Min. absolute Freq.
+                                <input type="number" class="form-control" name="no_below" placeholder="{{ data_initial['data_filtered']['param']['no_below'] }}" readonly>
+                              </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                              <div class="form-group row">
+                              <label>Max. relative Freq.
+                                <input type="number" class="form-control" name="no_above" placeholder="{{ data_initial['data_filtered']['param']['no_above'] }}" readonly>
+                                <small id="filterhelp" class="form-text text-muted">Change filter parameters in preprocess page</small>
+                              </label>
+                            </div>
+                        </div>
+                          <div class="col-md-12 text-right">
+                            <button type="submit" class="btn btn-primary btn-md">Submit</button>
+                          </div>
+                      </div>
+                    </form>
+                    <h4 class="card-title">Cluster analysis with K-means</h4>
+                    <!--<p class="card-description"> Add class comment </p>-->
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th> Cluster number <br> (# obs) </th>
+                          <th> Key features </th>
+                          <th> Job ads. title </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for row in df_cluster['tables'] %}
+                            <tr>
+                              <td> {{ row['cluster_num'] }} </td>
+                              <td> {{ row['key_features'] }} </td>
+                              <td>
+                                  {% for i in range(row['job_ads']|length) %}
+                                      <a href="{{ row['url'][i] }}" target="view_window"> {{ row['job_ads'][i] }} </a>;
+                                  {% endfor %}
+                              </td>
+                            </tr>
+                          {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Yeying">
+        <!-- import ECharts file -->
+        <script src="{{ url_for('static', filename='assets/js/echarts.min.js') }}"></script>
+        <title>Job offer analysis</title>
+        <!-- inject:css -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/inject_style.css') }}">
+        <!-- endinject -->
+        <!-- Layout styles -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/layout_style.css') }}">
+        <!-- End Layout styles -->
+        <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/favicon.png') }}" />
+        {% block head %} {% endblock %}
+    </head>
+    <body>
+        <div id="mm-0" class="mm-page mm-slideout">
+            <div id="wrap">
+                <nav class="navbar navbar-expand-sm navbar-light" style="background-color: #FFFFFF;">
+                  {% block header_menu %} {% endblock %}
+                </nav>
+                <div class="data_content">
+                    {% block main_panel %} {% endblock %}
+                    <footer class="footer">
+                        <div class="container-fluid clearfix">
+{#                          <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright &copy; 2019.Company name All rights reserved.</span>#}
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+        <!-- container-scroller -->
+        <!-- plugins:js -->
+        <script src="{{ url_for('static', filename='assets/js/vendor.bundle.base.js') }}"></script>
+        <!-- endinject -->
+        <!-- Plugin js for this page-->
+        <!-- End plugin js for this page-->
+    </body>
+</html>
